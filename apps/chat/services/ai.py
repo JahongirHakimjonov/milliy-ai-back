@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, List
 
 from django.conf import settings
 from openai import AsyncOpenAI, AsyncStream
@@ -23,7 +23,7 @@ class AIService:
             getattr(settings, "CHAT_EXTRACT_MAX_TOKENS", 200)
         )
         self.DEFAULT_RESPONSE_TOKENS = int(
-            getattr(settings, "CHAT_RESPONSE_MAX_TOKENS", 800)
+            getattr(settings, "CHAT_RESPONSE_MAX_TOKENS", 2000)
         )
 
         self.client: AsyncOpenAI = self._get_openai_client()
@@ -99,12 +99,18 @@ class AIService:
         user_context: Dict[str, Any],
         chat: Optional[ChatRoom] = None,
         vector_store_id: Optional[str] = None,
-    ) -> Tuple[AsyncStream[ResponseStreamEvent], Optional[str]]:
+    ) -> AsyncStream[ResponseStreamEvent]:
         context_json = self.truncate_text(
             json.dumps(user_context, ensure_ascii=False), self.DEFAULT_CONTEXT_MAX_CHARS
         )
+        markdown_system_prompt = (
+            "You are a professional technical writer and content creator. Please output your ANSWER in Markdown ONLY. "
+            "To use: #, ##, ### for headings, - or * for lists, 1. 2. for numbered lists, "
+            "`code` and ``` for block codes. Add sections, summaries, and bullet points. "
+            "Do not output any comments or explanations — Markdown only."
+        )
         context_prompt = (
-            "You are a helpful assistant. Use known context if relevant.\n"
+            f"{markdown_system_prompt}\n"
             f"Known context: {context_json}\n\n"
             f"{self.truncate_text(specialization_prompt or '', 800)}"
         )
@@ -127,15 +133,7 @@ class AIService:
             ],
         )
 
-        try:
-            openai_response_id = getattr(completion, "id", None) or (
-                completion.get("id") if isinstance(completion, dict) else None
-            )
-        except Exception as e:
-            logger.warning(f"Failed to retrieve OpenAI response ID: {e}")
-            openai_response_id = None
-
-        return completion, openai_response_id
+        return completion
 
     async def generate_title(self, full_response: str) -> str:
         system_prompt = "Generate a 3-6 word title for this chat without punctuation."

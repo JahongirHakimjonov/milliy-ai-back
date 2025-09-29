@@ -7,7 +7,7 @@ from openai.types.responses import (
     ResponseInputTextParam,
 )
 
-from dev import get_openai_client
+from draft.dev import get_openai_client
 
 client: AsyncOpenAI = get_openai_client()
 

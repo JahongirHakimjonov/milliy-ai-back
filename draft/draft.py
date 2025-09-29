@@ -243,4 +243,3 @@ Dasturlash XXI asrda eng talabgir va istiqbolli sohalardan biridir. U nafaqat te
 
 # PDFni saqlash
 doc.build(content)
-output_path
