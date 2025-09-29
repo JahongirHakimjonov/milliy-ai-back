@@ -10,6 +10,7 @@ load_dotenv(find_dotenv(".env"))
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 DEBUG = os.getenv("DEBUG")
 if DEBUG is not None:
@@ -109,11 +110,11 @@ MODELTRANSLATION_LANGUAGES = ("uz", "ru", "en")
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = "uz"
 
-STATIC_URL = "static/"
+STATIC_URL = f"{BACKEND_URL}/static/"
 STATICFILES_DIRS = [str(BASE_DIR.joinpath("assets/static"))]
 STATIC_ROOT = str(BASE_DIR.joinpath("assets/staticfiles"))
 
-MEDIA_URL = "media/"
+MEDIA_URL = f"{BACKEND_URL}/media/"
 MEDIA_ROOT = str(BASE_DIR.joinpath("assets/media"))
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
