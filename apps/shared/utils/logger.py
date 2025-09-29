@@ -8,7 +8,7 @@ logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
 
 formatter = ColoredFormatter(
-    "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(pathname)s - %(funcName)s - %(lineno)d",
     log_colors={
         "DEBUG": "green",
         "INFO": "blue",

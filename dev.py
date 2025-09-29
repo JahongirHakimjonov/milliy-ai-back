@@ -5,10 +5,12 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI, OpenAIError
-from openai.types.chat import (
-    ChatCompletionSystemMessageParam,
-    ChatCompletionUserMessageParam,
+from openai.types.responses import (
+    EasyInputMessageParam,
+    ResponseInputTextParam,
+    FileSearchToolParam,
 )
+from openai.types.vector_store_create_params import ExpiresAfter
 
 load_dotenv()
 
@@ -33,44 +35,62 @@ def get_openai_client() -> AsyncOpenAI:
 
 
 async def stream_and_save_assistant_response(user_message: str) -> str:
-    system_prompt: str = (
-        "You are a Python expert with 10 years of experience. "
-        "Only answer questions related to Python programming. "
-        "If the question is not related to Python, politely refuse."
-    )
+    system_prompt: str = "You are a helpful assistant"
 
     full_content: str = ""
 
     try:
-        messages: list[
-            ChatCompletionSystemMessageParam | ChatCompletionUserMessageParam
-        ] = [
-            ChatCompletionSystemMessageParam(role="system", content=system_prompt),
-            ChatCompletionUserMessageParam(role="user", content=user_message),
+        messages = [
+            EasyInputMessageParam(
+                role="system",
+                type="message",
+                content=[ResponseInputTextParam(text=system_prompt, type="input_text")],
+            ),
+            EasyInputMessageParam(
+                role="user",
+                type="message",
+                content=[ResponseInputTextParam(text=user_message, type="input_text")],
+            ),
         ]
 
         client: AsyncOpenAI = get_openai_client()
-        stream = await client.chat.completions.create(
+
+        # file = await client.files.create(
+        #     file=open("document.docx", "rb"), purpose="assistants"
+        # )
+        # print(f"Uploaded file ID: {file}")
+        # vector_store_file = await client.vector_stores.create(
+        #     # file_ids=[file.id],
+        #     expires_after=ExpiresAfter(
+        #         anchor="last_active_at",
+        #         days=30,
+        #     ),
+        # )
+        # print(f"Uploaded file ID: {vector_store_file}")
+        # "vs_68d835f8080c8191ae67ff4e0ad0fb53"
+        # "file-Q8F6S9zHsergdrMhzAMFfi"
+        # vector_store_file_id = "vs_68d835f8080c8191ae67ff4e0ad0fb53"
+        # vector_store_file = await client.vector_stores.file_batches.create(
+        #     vector_store_id=vector_store_file_id,
+        #     file_ids=["file-Q8F6S9zHsergdrMhzAMFfi"],
+        # )
+        # print(vector_store_file)
+
+        stream = await client.responses.create(
             model="gpt-4o-mini",
-            messages=messages,
+            input=messages,
+            conversation="conv_68d8076a547c8193b11390cb11f786cd058ffd8f4288dddd",
             stream=True,
         )
 
-        async for chunk in stream:
-            print(chunk)
-            if not chunk.choices:
-                continue
-            choice = chunk.choices[0]
-
-            delta_content = getattr(choice.delta, "content", None)
-            if delta_content:
-                full_content += delta_content
-
-            if getattr(choice, "finish_reason", None):
-                pass
+        async for event in stream:
+            if event.type == "response.output_text.delta":
+                delta = event.delta
+                full_content += delta
+                print(delta, end="", flush=True)
 
         print("\n--- Stream complete ---")
-        return full_content
+        return full_content.strip()
 
     except (OpenAIError, RuntimeError) as e:
         print(f"\n[Error] {e}")
@@ -84,15 +104,7 @@ def main():
     if len(sys.argv) > 1:
         user_message = " ".join(sys.argv[1:])
     else:
-        user_message = "Need hello world example in python."
-
-    if not any(
-        word.lower() in user_message.lower()
-        for word in ("python", "django", "flask", "asyncio")
-    ):
-        print(
-            "[Info] Заданный вопрос не выглядит связанным с Python. Модель должна будет вежливо отказаться."
-        )
+        user_message = "Summarize the content of the attached document."
 
     response = asyncio.run(stream_and_save_assistant_response(user_message))
     print(f"\nAssistant's full response:\n{response}")

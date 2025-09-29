@@ -9,13 +9,14 @@ class ChatResourceSerializer(serializers.ModelSerializer):
         model = ChatResource
         fields = (
             "id",
+            "user",
             "name",
             "file",
             "size",
             "type",
             "created_at",
         )
-        read_only_fields = ("name", "size", "type", "created_at")
+        read_only_fields = ("user", "name", "size", "type", "created_at")
 
 
 class ChatRoomSerializer(serializers.ModelSerializer):
@@ -33,7 +34,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     chat = ChatRoomSerializer(read_only=True)
     sender = MeSerializer(read_only=True)
-    file = ChatResourceSerializer(read_only=True)
+    file = ChatResourceSerializer(read_only=True, many=True)
 
     class Meta:
         model = Message

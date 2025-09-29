@@ -126,3 +126,67 @@ AUTH_USER_MODEL = "users.User"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL")
+
+CHAT_PERSISTENT_KEYS = {
+    "name",
+    "email",
+    "phone",
+    "username",
+    "company",
+    "job_title",
+    "work",
+    "location",
+    "country",
+    "city",
+    "language",
+    "timezone",
+    "age",
+    "birthday",
+    "website",
+    "social",
+    "likes",
+    "dislikes",
+    "preferences",
+    "hobbies",
+    "interests",
+    "skills",
+    "product",
+    "intent",
+    "goal",
+}
+
+CHAT_DEFAULT_TTL_DAYS = 7
+
+CHAT_TTL_OVERRIDES = {key: CHAT_DEFAULT_TTL_DAYS for key in CHAT_PERSISTENT_KEYS}
+
+CHAT_PRIORITY_MAP = {
+    "name": 100,
+    "email": 95,
+    "phone": 95,
+    "username": 90,
+    "company": 85,
+    "job_title": 85,
+    "work": 80,
+    "location": 80,
+    "country": 75,
+    "city": 75,
+    "language": 70,
+    "timezone": 70,
+    "age": 60,
+    "birthday": 60,
+    "website": 50,
+    "social": 50,
+    "likes": 40,
+    "dislikes": 40,
+    "preferences": 40,
+    "hobbies": 30,
+    "interests": 30,
+    "skills": 50,
+    "product": 60,
+    "intent": 90,
+    "goal": 90,
+}
+
+SUPPORTED_FILE_FORMATS = [".txt", ".pdf", ".doc", ".docx", ".pptx"]
+
+SUPPORTED_FILE_SIZE = 10 * 1024 * 1024  # 10 MB

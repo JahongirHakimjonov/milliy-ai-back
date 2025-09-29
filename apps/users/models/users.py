@@ -46,6 +46,9 @@ class User(AbstractUser, AbstractBaseModel):
         blank=True,
         verbose_name=_("Specialization"),
     )
+    allow_memory_storage = models.BooleanField(
+        default=False, verbose_name=_("Allow memory storage")
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]

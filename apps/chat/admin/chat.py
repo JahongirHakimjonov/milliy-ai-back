@@ -9,6 +9,12 @@ class ChatRoomAdmin(ModelAdmin):
     list_display = ("id", "name", "created_at", "updated_at")
     autocomplete_fields = ("participant",)
     search_fields = ("participant__email",)
+    readonly_fields = (
+        "conversation_id",
+        "vector_store_id",
+        "created_at",
+        "updated_at",
+    )
 
 
 @admin.register(Message)
@@ -26,7 +32,7 @@ class ChatResourceAdmin(ModelAdmin):
     list_display = ("id", "user", "file", "created_at")
     autocomplete_fields = ("user",)
     search_fields = ("file", "user__first_name")
-    readonly_fields = ("name", "size", "type", "created_at")
+    readonly_fields = ("file_id", "name", "size", "type", "created_at")
 
 
 @admin.register(UserContext)

@@ -36,6 +36,7 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
                     "last_name",
                     "avatar",
                     "specialization",
+                    "allow_memory_storage",
                 )
             },
         ),
