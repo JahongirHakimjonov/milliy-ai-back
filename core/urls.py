@@ -2,9 +2,16 @@ from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns  # noqa: F401
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.static import serve
 
 from core.config.swagger import urlpatterns as swagger_patterns
+
+
+@xframe_options_exempt
+def media_serve(request, path):
+    return serve(request, path, document_root=settings.MEDIA_ROOT)
+
 
 urlpatterns = (
     [
@@ -21,7 +28,8 @@ urlpatterns = (
         path("rosetta/", include("rosetta.urls")),
         # Media and static files
         re_path(r"static/(?P<path>.*)", serve, {"document_root": settings.STATIC_ROOT}),
-        re_path(r"media/(?P<path>.*)", serve, {"document_root": settings.MEDIA_ROOT}),
+        # re_path(r"media/(?P<path>.*)", serve, {"document_root": settings.MEDIA_ROOT}),
+        re_path(r"^media/(?P<path>.*)$", media_serve),
     ]
 )
 

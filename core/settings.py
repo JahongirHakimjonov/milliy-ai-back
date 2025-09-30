@@ -191,3 +191,5 @@ CHAT_PRIORITY_MAP = {
 SUPPORTED_FILE_FORMATS = [".txt", ".pdf", ".doc", ".docx", ".pptx"]
 
 SUPPORTED_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+
+X_FRAME_OPTIONS = "ALLOW-FROM *"
